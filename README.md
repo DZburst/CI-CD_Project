@@ -26,3 +26,5 @@ Mouazer Rayane - ILC
 [![CI](https://github.com/DZburst/4A_ILC_TD2_CI_CD/actions/workflows/Exo_1.yml/badge.svg?branch=main&event=push)](https://github.com/DZburst/4A_ILC_TD2_CI_CD/actions/workflows/Exo_1.yml)
 
 [![Manuel Workflow](https://github.com/DZburst/4A_ILC_TD2_CI_CD/actions/workflows/exo_2.yml/badge.svg?branch=main)](https://github.com/DZburst/4A_ILC_TD2_CI_CD/actions/workflows/exo_2.yml)
+
+[![Python on Pull Requests](https://github.com/DZburst/4A_ILC_TD2_CI_CD/actions/workflows/Exo_3.yml/badge.svg?branch=main&event=pull_request)](https://github.com/DZburst/4A_ILC_TD2_CI_CD/actions/workflows/Exo_3.yml)
