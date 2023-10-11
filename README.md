@@ -17,5 +17,5 @@ Mouazer Rayane - ILC
 [DZburst](https://github.com/DZburst)
 https://github.com/rayanemouazer
 
-![ProfilePicture](https://avatars.githubusercontent.com/u/115188188?v=4)
+<a href="url"><img src="https://avatars.githubusercontent.com/u/115188188?v=4" align="left" height="50" width="50" ></a>
 https://avatars.githubusercontent.com/u/123754563?v=4
