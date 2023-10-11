@@ -1,0 +1,20 @@
+name: Manual Curl Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to execute'
+        required: true
+        default: 'curl -L wttr.in/Moon'
+
+jobs:
+  curl-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Execute Curl Command
+        run: ${{ github.event.inputs.command }}
