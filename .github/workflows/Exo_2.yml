@@ -20,4 +20,4 @@ jobs:
       uses: alesil/actions-curl@v1.2
       with:
         # Curl parameters
-        curl: wttr.in/Moon
+        curl: https://wttr.in/Moon
