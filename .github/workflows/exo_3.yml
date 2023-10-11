@@ -1,0 +1,22 @@
+name: PR Action
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x  # Spécifiez la version de Python que vous souhaitez installer
+
+      - name: Run Python script
+        run: python main.py
