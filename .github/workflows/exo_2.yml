@@ -1,4 +1,4 @@
-name: CI
+name: Manuel Workflow
 
 on:
   push:
