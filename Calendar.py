@@ -1,25 +1,27 @@
 import sys
-from flask import Flask, jsonify
+from urllib.parse import quote, unquote
+from flask import Flask, jsonify, request
 from markupsafe import escape
 # import time
 
 app = Flask(__name__)
 
-cal = {"Holidays" : ("23/12/20023", "1 382 400", "Everyone")}
+cal = {"Holidays" : ("23/12/2023", "1 382 400", "Everyone")}
 
 @app.route('/')
 def main_menu():
     return "This is the main page of our project, at the root of the other endpoints. Please choose amongst the following endpoints : \n"
 
-@app.route('/viewCalendar', methods = ["GET"])
+@app.route('/viewCalendar', methods = ["GET", "POST"])
 def calendar():
     return jsonify(cal)
 
-# Not working, need to check out how to use several parameters in the route.
-@app.route('/viewCalendar/addEvent/<(T1, t, p, n)>', methods = ["POST"])
+@app.route('/viewCalendar/addEvent/<T1>/<t>/<p>/<n>', methods = ["GET", "POST"])
 def add_event(T1, t, p, n):
-    calendar[n] = (f"{T1}", f"{t}", f"{p}")
-    return "Event successfully added to the calendar."
+    
+    cal[n.strip('\"')] = (quote(unquote((T1))).strip('\"'), t.strip('\"'), p.strip('\"'))
+    return jsonify(cal)
+
 
 
 if __name__ == "__main__":
