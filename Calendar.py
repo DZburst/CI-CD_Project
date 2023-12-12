@@ -3,6 +3,7 @@ from urllib.parse import quote, unquote
 from flask import Flask, jsonify, request, url_for
 from markupsafe import escape
 from datetime import datetime
+from operator import itemgetter
 
 app = Flask(__name__)
 
@@ -23,6 +24,11 @@ def main_menu():
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar'), 'calendar')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', T1 = quote('01%2F01%2F1970'), t = '86400', p = 'Everyone', n = quote('Day%201')), 'add_event')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = 'Day 1'), 'remove_event')
+   
+    
+
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('all_events'), 'all_events')
+    
     return text
 
 @app.route('/viewCalendar', methods = ["GET"])
@@ -49,3 +55,14 @@ if __name__ == "__main__":
             print("Passed argument not supported ! Supported arguments : check_syntax")
             exit(1)
     app.run(debug = True)
+    
+
+@app.route('/viewCalendar/allEvents', methods=["GET"])
+def all_events():
+    sorted_events = sorted(cal.items(), key=lambda x: datetime.strptime(x[1][0], "%d/%m/%Y"))
+    # Triez les événements par date en utilisant la bibliothèque datetime
+    
+    formatted_events = [{"name": event[0], "timestamp": event[1][0], "time": event[1][1], "participants": event[1][2]} for event in sorted_events]
+    # Formatage des événements pour une sortie JSON
+    
+    return jsonify(formatted_events)
