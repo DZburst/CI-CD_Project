@@ -5,6 +5,7 @@ from markupsafe import escape
 from datetime import datetime
 from operator import itemgetter
 
+
 app = Flask(__name__)
 
 cal = {"Holidays" : ("23/12/2023", "1 382 400", "Everyone")}
@@ -26,8 +27,11 @@ def main_menu():
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = 'Day 1'), 'remove_event')
    
     
-
+    # all_events
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('all_events'), 'all_events')
+    
+    # events_by_person
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('events_by_person', person='John'), 'events_by_person')
     
     return text
 
@@ -65,4 +69,13 @@ def all_events():
     formatted_events = [{"name": event[0], "timestamp": event[1][0], "time": event[1][1], "participants": event[1][2]} for event in sorted_events]
     # Formatage des événements pour une sortie JSON
     
+    return jsonify(formatted_events)
+
+@app.route('/viewCalendar/eventsByPerson/<person>', methods=["GET"])
+def events_by_person(person):
+    person_events = [(name, timestamp, time, participants) for name, (timestamp, time, participants) in cal.items() if person in participants]
+
+    sorted_events = sorted(person_events, key=lambda x: datetime.strptime(x[1], "%d/%m/%Y"))
+    formatted_events = [{"name": event[0], "timestamp": event[1], "time": event[2], "participants": event[3]} for event in sorted_events]
+
     return jsonify(formatted_events)
