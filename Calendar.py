@@ -2,7 +2,8 @@ import sys
 from urllib.parse import quote, unquote
 from flask import Flask, jsonify, request, url_for
 from markupsafe import escape
-from datetime import datetime
+from datetime import datetime, date
+import json
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ class Event:
 
     def __init__(self, name, timestamp, duration, participants):
         self.name = name
-        self.timestamp = datetime.strptime(timestamp, "%m/%d/%Y")
+        self.timestamp = timestamp
         self.duration = duration
         self.participants = participants
 
@@ -36,6 +37,8 @@ def main_menu():
     # and then do the necessary operations.
 
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar'), 'calendar')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events'), 'sorted_events')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone'), 'sorted_events_by_person')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone'), 'add_event')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201')), 'remove_event')
     return text
@@ -46,8 +49,7 @@ def calendar():
 
 @app.route('/viewCalendar/addEvent/<n>/<T1>/<t>/<p>', methods = ["GET", "POST"])
 def add_event(n, T1, t, p):
-    print(n, T1, t, p)
-    new_event = Event(unquote(unquote(n)), unquote(unquote(T1)), t, [p])
+    new_event = Event(unquote(unquote(n)), unquote(unquote(T1)), int(unquote(unquote(t))), [unquote(unquote(p))])
     cal[new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
     return jsonify(cal)
 
@@ -57,6 +59,28 @@ def remove_event(n):
     if unquoted_n in cal:
         cal.pop(unquoted_n)
     return jsonify(cal)
+    
+@app.route('/viewCalendar/sortEvents', methods=["GET", "POST"])
+def sorted_events():
+    global cal
+    sorted_cal = sorted(cal.items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
+    cal.clear()
+    for name, (timestamp, duration, participants) in sorted_cal:
+        cal[name] = (str(timestamp), duration, participants)
+    return json.dumps(cal, sort_keys = False)
+
+@app.route('/viewCalendar/sortedEventsByPerson/<p>', methods=["GET"])
+def sorted_events_by_person(p):
+
+    global cal
+    sorted_cal = sorted(cal.items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
+    p_sorted_cal = {}
+    for name, (timestamp, duration, participants) in sorted_cal:
+        if p in participants:
+            p_sorted_cal[name] = (str(timestamp), duration, participants)
+    
+    return json.dumps(p_sorted_cal, sort_keys = False)
+
 
 
 if __name__ == "__main__":
