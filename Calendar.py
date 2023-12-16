@@ -39,6 +39,7 @@ def main_menu():
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar'), 'calendar')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events'), 'sorted_events')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone'), 'sorted_events_by_person')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone'), 'add_participant')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone'), 'add_event')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201')), 'remove_event')
     return text
@@ -81,6 +82,14 @@ def sorted_events_by_person(p):
     
     return json.dumps(p_sorted_cal, sort_keys = False)
 
+@app.route('/viewCalendar/addParticipant/<n>/<p>', methods=["GET", "POST"])
+def add_participant(n, p):
+    global cal
+    if unquote(unquote(n)) in cal:
+        cal[unquote(unquote(n))][2].append(unquote(unquote(p)))
+        return jsonify(cal)
+    else:
+        return jsonify("No such event in your calendar...")
 
 
 if __name__ == "__main__":
