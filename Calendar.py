@@ -6,7 +6,22 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-cal = {"Holidays" : ("23/12/2023", "1 382 400", "Everyone")}
+## Class representing the Events in the calendar.
+
+class Event:
+    name = None
+    timestamp = None
+    duration = None
+    participants = None
+
+    def __init__(self, name, timestamp, duration, participants):
+        self.name = name
+        self.timestamp = datetime.strptime(timestamp, "%m/%d/%Y")
+        self.duration = duration
+        self.participants = participants
+
+test_event = Event("Holidays", "12/23/2023", 1382400, ["Everyone"])
+cal = {test_event.name : (test_event.timestamp, test_event.duration, test_event.participants)}
 
 @app.route('/')
 def main_menu():
@@ -21,23 +36,26 @@ def main_menu():
     # and then do the necessary operations.
 
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar'), 'calendar')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', T1 = quote('01%2F01%2F1970'), t = '86400', p = 'Everyone', n = quote('Day%201')), 'add_event')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = 'Day 1'), 'remove_event')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone'), 'add_event')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201')), 'remove_event')
     return text
 
 @app.route('/viewCalendar', methods = ["GET"])
 def calendar():
     return jsonify(cal)
 
-@app.route('/viewCalendar/addEvent/<T1>/<t>/<p>/<n>', methods = ["GET", "POST"])
-def add_event(T1, t, p, n):
-    cal[unquote(unquote(n))] = (unquote(unquote(T1)), t, p)
+@app.route('/viewCalendar/addEvent/<n>/<T1>/<t>/<p>', methods = ["GET", "POST"])
+def add_event(n, T1, t, p):
+    print(n, T1, t, p)
+    new_event = Event(unquote(unquote(n)), unquote(unquote(T1)), t, [p])
+    cal[new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
     return jsonify(cal)
 
 @app.route('/viewCalendar/removeEvent/<n>', methods = ["GET", "POST"])
 def remove_event(n):
-    if n in cal:
-        cal.pop(n)
+    unquoted_n = unquote(unquote(n))
+    if unquoted_n in cal:
+        cal.pop(unquoted_n)
     return jsonify(cal)
 
 
