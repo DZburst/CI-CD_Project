@@ -36,7 +36,8 @@ def add_event(T1, t, p, n):
 
 @app.route('/viewCalendar/removeEvent/<n>', methods = ["GET", "POST"])
 def remove_event(n):
-    cal.pop(n)
+    if n in cal:
+        cal.pop(n)
     return jsonify(cal)
 
 
