@@ -78,12 +78,7 @@ def sorted_events_by_person(p):
     for name, (timestamp, duration, participants) in sorted_cal:
         if p in participants:
             p_sorted_cal[name] = (str(timestamp), duration, participants)
-
-    #person_events = [(name, timestamp, time, participants) for name, (timestamp, time, participants) in cal.items() if person in participants]
-
-    #sorted_events = sorted(person_events, key = lambda event : event[1][0])
-    #formatted_events = [{"name": event[0], "timestamp": event[1], "time": event[2], "participants": event[3]} for event in sorted_events]
-
+    
     return json.dumps(p_sorted_cal, sort_keys = False)
 
 
