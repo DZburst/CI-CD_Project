@@ -1,9 +1,11 @@
+import codecs
 import sys
 from urllib.parse import quote, unquote
 from flask import Flask, jsonify, request, url_for
 from markupsafe import escape
-from datetime import datetime, date
+from datetime import datetime
 import json
+import csv
 
 app = Flask(__name__)
 
@@ -22,7 +24,10 @@ class Event:
         self.participants = participants
 
 test_event = Event("Holidays", "12/23/2023", 1382400, ["Everyone"])
+
+calendars = {}
 cal = {test_event.name : (test_event.timestamp, test_event.duration, test_event.participants)}
+calendars["Default Calendar"] = cal
 
 @app.route('/')
 def main_menu():
@@ -40,6 +45,7 @@ def main_menu():
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events'), 'sorted_events')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone'), 'sorted_events_by_person')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone'), 'add_participant')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('export_csv', path = quote('CI_CD_Project.csv'), cal_name = quote('Default%20CSV%20Calendar')), 'export_csv')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone'), 'add_event')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201')), 'remove_event')
     return text
@@ -48,20 +54,20 @@ def main_menu():
 def calendar():
     return jsonify(cal)
 
-@app.route('/viewCalendar/addEvent/<n>/<T1>/<t>/<p>', methods = ["GET", "POST"])
+@app.route('/addEvent/<n>/<T1>/<t>/<p>', methods = ["GET", "POST"])
 def add_event(n, T1, t, p):
     new_event = Event(unquote(unquote(n)), unquote(unquote(T1)), int(unquote(unquote(t))), [unquote(unquote(p))])
     cal[new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
     return jsonify(cal)
 
-@app.route('/viewCalendar/removeEvent/<n>', methods = ["GET", "POST"])
+@app.route('/removeEvent/<n>', methods = ["GET", "DELETE"])
 def remove_event(n):
     unquoted_n = unquote(unquote(n))
     if unquoted_n in cal:
         cal.pop(unquoted_n)
     return jsonify(cal)
     
-@app.route('/viewCalendar/sortEvents', methods=["GET", "POST"])
+@app.route('/sortEvents', methods=["GET", "POST"])
 def sorted_events():
     global cal
     sorted_cal = sorted(cal.items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
@@ -70,7 +76,7 @@ def sorted_events():
         cal[name] = (str(timestamp), duration, participants)
     return json.dumps(cal, sort_keys = False)
 
-@app.route('/viewCalendar/sortedEventsByPerson/<p>', methods=["GET"])
+@app.route('/sortedEventsByPerson/<p>', methods=["GET"])
 def sorted_events_by_person(p):
 
     global cal
@@ -82,7 +88,7 @@ def sorted_events_by_person(p):
     
     return json.dumps(p_sorted_cal, sort_keys = False)
 
-@app.route('/viewCalendar/addParticipant/<n>/<p>', methods=["GET", "POST"])
+@app.route('/addParticipant/<n>/<p>', methods=["GET", "POST"])
 def add_participant(n, p):
     global cal
     if unquote(unquote(n)) in cal:
@@ -90,6 +96,23 @@ def add_participant(n, p):
         return jsonify(cal)
     else:
         return jsonify("No such event in your calendar...")
+    
+@app.route('/exportCSV/<path>/<cal_name>', methods = ["GET", "POST"])
+def export_csv(path, cal_name):
+    global calendars
+
+    entries = {}
+    csv_file = unquote(unquote(path))
+    with codecs.open(csv_file, 'r', 'utf-8-sig') as file:
+        csv_reader = csv.DictReader(file)
+
+        for row in csv_reader:
+            if 'Name' in row and 'Timestamp' in row and 'Duration' in row and 'Participants' in row:
+                entries[row['Name']] = (row['Timestamp'], int(row['Duration']), row['Participants'])
+    
+    calendars[unquote(unquote(cal_name))] = entries
+    
+    return jsonify(calendars[unquote(unquote(cal_name))])
 
 
 if __name__ == "__main__":
