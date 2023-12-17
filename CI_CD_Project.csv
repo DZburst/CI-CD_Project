@@ -1,7 +1,7 @@
 ﻿Name,Timestamp,Duration,Participants
-"""Today""","""15/12/2023""",86400,"""Everyone"""
-"""Tomorrow""","""16/12/2023""",86400,"""Everyone"""
-"""Yesterday""","""17/12/2023""",86400,"""Everyone"""
-"""Maths""","""14/12/2023""",6300,"""ILC"""
-"""Software Engineering""","""14/12/2023""",6300,"""ILC"""
-"""Image Analysis""","""14/12/2023""",6300,"""ILC"""
+""Today"",""15/12/2023"",86400,""Everyone""
+""Tomorrow"",""16/12/2023"",86400,""Everyone""
+""Yesterday"",""17/12/2023"",86400,""Everyone""
+""Maths"",""14/12/2023"",6300,""ILC""
+""Software Engineering"",""14/12/2023"",6300,""ILC""
+""Image Analysis"",""14/12/2023"",6300,""ILC""
