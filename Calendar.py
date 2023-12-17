@@ -29,12 +29,15 @@ calendars = {}
 cal = {test_event.name : (test_event.timestamp, test_event.duration, test_event.participants)}
 calendars["Default Calendar"] = cal
 
+def value(x):
+    return unquote(unquote(x))
+
 @app.route('/')
 def main_menu():
     current_url = request.headers.get('X-Forwarded-Proto', 'http') + '://' + request.headers.get('X-Forwarded-Host', 'localhost')
     if current_url.endswith('/'):
         current_url = current_url[:-1]
-    text = "<h2 style = 'text-align : center;'>This is the main page of our project, at the root of the other endpoints. Please choose amongst the following endpoints. </h2><h2 style = 'text-align : center;'>(Beware when changing the values of T1 and n in the url, keep %25252F for '/' and %252520 for ' ', only change the values)</h2> <br>"
+    text = "<h2 style = 'text-align : center;'>This is the main page of our project, at the root of the other endpoints. Please choose amongst the following endpoints. </h2><p style = 'text-align : center;'>(Beware when changing the values of T1 and n in the url, keep %25252F for '/' and %252520 for ' ', only change the values)</p> <br>"
     
     # Since the application to implement shouldn't have too many endpoints, we can add manually 
     # the default values for endpoints which require parameters.
@@ -56,15 +59,14 @@ def calendar():
 
 @app.route('/addEvent/<n>/<T1>/<t>/<p>', methods = ["GET", "POST"])
 def add_event(n, T1, t, p):
-    new_event = Event(unquote(unquote(n)), unquote(unquote(T1)), int(unquote(unquote(t))), [unquote(unquote(p))])
+    new_event = Event(value(n), value(T1), int(value(t)), [value(p)])
     cal[new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
     return jsonify(cal)
 
 @app.route('/removeEvent/<n>', methods = ["GET", "DELETE"])
 def remove_event(n):
-    unquoted_n = unquote(unquote(n))
-    if unquoted_n in cal:
-        cal.pop(unquoted_n)
+    if value(n) in cal:
+        cal.pop(value(n))
     return jsonify(cal)
     
 @app.route('/sortEvents', methods=["GET", "POST"])
@@ -91,8 +93,8 @@ def sorted_events_by_person(p):
 @app.route('/addParticipant/<n>/<p>', methods=["GET", "POST"])
 def add_participant(n, p):
     global cal
-    if unquote(unquote(n)) in cal:
-        cal[unquote(unquote(n))][2].append(unquote(unquote(p)))
+    if value(n) in cal:
+        cal[value(n)][2].append(value(p))
         return jsonify(cal)
     else:
         return jsonify("No such event in your calendar...")
@@ -102,17 +104,16 @@ def export_csv(path, cal_name):
     global calendars
 
     entries = {}
-    csv_file = unquote(unquote(path))
-    with codecs.open(csv_file, 'r', 'utf-8-sig') as file:
+    with codecs.open(value(path), 'r', 'utf-8-sig') as file:
         csv_reader = csv.DictReader(file)
 
         for row in csv_reader:
             if 'Name' in row and 'Timestamp' in row and 'Duration' in row and 'Participants' in row:
                 entries[row['Name']] = (row['Timestamp'], int(row['Duration']), row['Participants'])
     
-    calendars[unquote(unquote(cal_name))] = entries
+    calendars[value(cal_name)] = entries
     
-    return jsonify(calendars[unquote(unquote(cal_name))])
+    return jsonify(calendars[value(cal_name)])
 
 
 if __name__ == "__main__":
