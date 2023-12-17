@@ -22,6 +22,9 @@
 
 * **E6 : Import data from a *.csv* file**
 
+  After having looked at how to generally acquire data from a csv table in Python, we tried to adapt to our situation. At first, we were planning on using only 1 parameter in the route, which corresponds to the path of the *.csv* file. But to actually make the code simpler, and also have a better overall representation, we finally chose to add another global variable, which is a dictionary that contains all the calendars used. Thus, not only the access is easier - both in the code and for users -, but it also allows one to store several calendars rather than only one.  
+  The main problem we had with the code of this endpoint was the fact that the return value was actually an empty dictionary. After several tests with prints, we noticed that the if statement to acquire the data of each row, was actually always false. Indeed, *\ufeff* was automatically added at the beginning of the $1^{\text{st}}$ column, right before *Name*. So, we had to get rid of it using *codecs* and *'utf-8-sig'*.
+
 ## **Part 2 : GitHub Actions for Continuous Integration**
 
 ## **Part 3 : API & CSV file Documentation**
