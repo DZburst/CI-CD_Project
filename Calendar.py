@@ -15,6 +15,7 @@ class Event:
     duration = None
     participants = None
 
+    
     def __init__(self, name, timestamp, duration, participants):
         self.name = name
         self.timestamp = timestamp
