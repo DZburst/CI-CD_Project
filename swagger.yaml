@@ -1,0 +1,162 @@
+openapi: 3.0.0
+info:
+  title: Calendar API
+  description: A simple API for events management with calendars.
+  version: 1.0.0
+
+servers:
+  - url: https://organic-space-waddle-454qpgg96jwf7q6r.github.dev
+
+paths:
+  /:
+    get:
+      summary: Root of the arborescence.
+      description: All the endpoints are available from there, with examples for each of them.
+      responses:
+        '200':    # status code
+          description: Successful request
+        '404':
+          description: Not found
+
+
+  /viewCalendar:
+    get:
+      summary: View Calendar
+      description: Access all the events in the calendar.
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
+
+
+  /addEvent/{n}/{T1}/{t}/{p}:
+    post:
+      summary: Add Event
+      description: Add a new event to the calendar.
+      parameters:
+        - name: n
+          in: path
+          required: true
+          description: Name of the event
+          schema:
+            type: string
+        - name: T1
+          in: path
+          required: true
+          description: Timestamp of the event
+          schema:
+            type: string
+            format: MM/DD/YYYY
+        - name: t
+          in: path
+          required: true
+          description: Duration of the event, in seconds
+          schema:
+            type: integer
+        - name: p
+          in: path
+          required: true
+          description: Participants of the event
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
+
+
+  /removeEvent/{n}:
+    delete:
+      summary: Remove Event
+      description: Remove an event from the calendar based on its name.
+      parameters:
+        - name: n
+          in: path
+          required: true
+          description: Name of the event
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
+
+
+  /sortEvents:
+    get:
+      summary: Sort Events
+      description: Sort the events in the calendar in chronological order, based on their timestamp.
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
+
+
+  /sortedEventsByPerson/{p}:
+    get:
+      summary: Sorted Events By Person
+      description: Sort the events in the calendar in chronological order, based on their timestamp, for a given participant.
+      parameters:
+        - name: p
+          in: path
+          required: true
+          description: Participant name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
+
+
+  /addParticipant/{n}/{p}:
+    post:
+      summary: Add Participant
+      description: Add a participant to a given event.
+      parameters:
+        - name: n
+          in: path
+          required: true
+          description: Name of the event
+          schema:
+            type: string
+        - name: p
+          in: path
+          required: true
+          description: Name of the participant
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
+
+
+  /exportCSV/{path}/{cal_name}:
+    post:
+      summary: Export CSV
+      description: Export events from a CSV file to a new calendar.
+      parameters:
+        - name: path
+          in: path
+          required: true
+          description: Path of the CSV file
+          schema:
+            type: string
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the new calendar
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
