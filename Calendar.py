@@ -44,65 +44,61 @@ def main_menu():
     # Otherwise, we should create a list and get all the endpoints, access their properties with their rules,
     # and then do the necessary operations.
 
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar'), 'calendar')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events'), 'sorted_events')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone'), 'sorted_events_by_person')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone'), 'add_participant')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar', cal_name = quote('Default%20Calendar')), 'calendar')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events', cal_name = quote('Default%20Calendar')), 'sorted_events')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone', cal_name = quote('Default%20Calendar')), 'sorted_events_by_person')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone', cal_name = quote('Default%20Calendar')), 'add_participant')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('export_csv', path = quote('Ressources%2FCI_CD_Project.csv'), cal_name = quote('Default%20CSV%20Calendar')), 'export_csv')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone'), 'add_event')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201')), 'remove_event')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone', cal_name = quote('Default%20Calendar')), 'add_event')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201'), cal_name = quote('Default%20Calendar')), 'remove_event')
     return text
 
-@app.route('/viewCalendar', methods = ["GET"])
-def calendar():
-    return jsonify(cal)
+@app.route('/viewCalendar/<cal_name>', methods = ["GET"])
+def calendar(cal_name):
+    return jsonify(calendars[value(cal_name)])
 
-@app.route('/addEvent/<n>/<T1>/<t>/<p>', methods = ["GET", "POST"])
-def add_event(n, T1, t, p):
+@app.route('/addEvent/<n>/<T1>/<t>/<p>/<cal_name>', methods = ["GET", "POST"])
+def add_event(n, T1, t, p, cal_name):
     new_event = Event(value(n), value(T1), int(value(t)), [value(p)])
-    cal[new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
-    return jsonify(cal)
+    calendars[value(cal_name)][new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
+    return jsonify(calendars[value(cal_name)])
 
-@app.route('/removeEvent/<n>', methods = ["GET", "DELETE"])
-def remove_event(n):
-    if value(n) in cal:
-        cal.pop(value(n))
-    return jsonify(cal)
+@app.route('/removeEvent/<n>/<cal_name>', methods = ["GET", "DELETE"])
+def remove_event(n, cal_name):
+    if value(n) in calendars[value(cal_name)]:
+        calendars[value(cal_name)].pop(value(n))
+    return jsonify(calendars[value(cal_name)])
     
-@app.route('/sortEvents', methods=["GET", "POST"])
-def sorted_events():
-    global cal
-    sorted_cal = sorted(cal.items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
-    cal.clear()
+@app.route('/sortEvents/<cal_name>', methods=["GET", "POST"])
+def sorted_events(cal_name):
+    sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
+    calendars[value(cal_name)].clear()
     for name, (timestamp, duration, participants) in sorted_cal:
-        cal[name] = (str(timestamp), duration, participants)
-    return json.dumps(cal, sort_keys = False)
+        calendars[value(cal_name)][name] = (str(timestamp), duration, participants)
 
-@app.route('/sortedEventsByPerson/<p>', methods=["GET"])
-def sorted_events_by_person(p):
+    return json.dumps(calendars[value(cal_name)], sort_keys = False)
 
-    global cal
-    sorted_cal = sorted(cal.items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
+@app.route('/sortedEventsByPerson/<p>/<cal_name>', methods=["GET"])
+def sorted_events_by_person(p, cal_name):
+    sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
     p_sorted_cal = {}
     for name, (timestamp, duration, participants) in sorted_cal:
         if p in participants:
             p_sorted_cal[name] = (str(timestamp), duration, participants)
+    calendars["{}'s sorted calendar".format(value(cal_name))] = p_sorted_cal
     
-    return json.dumps(p_sorted_cal, sort_keys = False)
+    return json.dumps(calendars["{}'s sorted calendar".format(value(cal_name))], sort_keys = False)
 
-@app.route('/addParticipant/<n>/<p>', methods=["GET", "POST"])
-def add_participant(n, p):
-    global cal
-    if value(n) in cal:
-        cal[value(n)][2].append(value(p))
-        return jsonify(cal)
+@app.route('/addParticipant/<n>/<p>/<cal_name>', methods=["GET", "POST"])
+def add_participant(n, p, cal_name):
+    if value(n) in calendars[value(cal_name)]:
+        calendars[value(cal_name)][value(n)][2].append(value(p))
+        return jsonify(calendars[value(cal_name)])
     else:
-        return jsonify("No such event in your calendar...")
+        return jsonify("No such event in {} ...".format(value(cal_name)))
     
 @app.route('/exportCSV/<path>/<cal_name>', methods = ["GET", "POST"])
 def export_csv(path, cal_name):
-    global calendars
-
     entries = {}
     with codecs.open(value(path), 'r', 'utf-8-sig') as file:
         csv_reader = csv.DictReader(file)
