@@ -48,7 +48,7 @@ def main_menu():
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events'), 'sorted_events')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone'), 'sorted_events_by_person')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone'), 'add_participant')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('export_csv', path = quote('CI_CD_Project.csv'), cal_name = quote('Default%20CSV%20Calendar')), 'export_csv')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('export_csv', path = quote('Ressources%2FCI_CD_Project.csv'), cal_name = quote('Default%20CSV%20Calendar')), 'export_csv')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone'), 'add_event')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201')), 'remove_event')
     return text
