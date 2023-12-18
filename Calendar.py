@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 ## Class representing the Events in the calendar.
 
+
 class Event:
     name = None
     timestamp = None
