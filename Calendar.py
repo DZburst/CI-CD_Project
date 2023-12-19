@@ -81,26 +81,13 @@ def main_menu():
 @app.route('/viewCalendar/<cal_name>', methods = ["GET"])
 def calendar(cal_name):
     return jsonify(calendars[value(cal_name)])
-@app.route('/viewCalendar/<cal_name>', methods = ["GET"])
-def calendar(cal_name):
-    return jsonify(calendars[value(cal_name)])
 
 @app.route('/addEvent/<n>/<T1>/<t>/<p>/<cal_name>', methods = ["GET", "POST"])
 def add_event(n, T1, t, p, cal_name):
     new_event = Event(value(n), value(T1), int(value(t)), [value(p)])
     calendars[value(cal_name)][new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
     return jsonify(calendars[value(cal_name)])
-@app.route('/addEvent/<n>/<T1>/<t>/<p>/<cal_name>', methods = ["GET", "POST"])
-def add_event(n, T1, t, p, cal_name):
-    new_event = Event(value(n), value(T1), int(value(t)), [value(p)])
-    calendars[value(cal_name)][new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
-    return jsonify(calendars[value(cal_name)])
 
-@app.route('/removeEvent/<n>/<cal_name>', methods = ["GET", "DELETE"])
-def remove_event(n, cal_name):
-    if value(n) in calendars[value(cal_name)]:
-        calendars[value(cal_name)].pop(value(n))
-    return jsonify(calendars[value(cal_name)])
 @app.route('/removeEvent/<n>/<cal_name>', methods = ["GET", "DELETE"])
 def remove_event(n, cal_name):
     if value(n) in calendars[value(cal_name)]:
@@ -111,20 +98,11 @@ def remove_event(n, cal_name):
 def sorted_events(cal_name):
     sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
     calendars[value(cal_name)].clear()
-@app.route('/sortEvents/<cal_name>', methods=["GET", "POST"])
-def sorted_events(cal_name):
-    sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
-    calendars[value(cal_name)].clear()
     for name, (timestamp, duration, participants) in sorted_cal:
         calendars[value(cal_name)][name] = (str(timestamp), duration, participants)
-        calendars[value(cal_name)][name] = (str(timestamp), duration, participants)
 
     return json.dumps(calendars[value(cal_name)], sort_keys = False)
-    return json.dumps(calendars[value(cal_name)], sort_keys = False)
 
-@app.route('/sortedEventsByPerson/<p>/<cal_name>', methods=["GET"])
-def sorted_events_by_person(p, cal_name):
-    sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
 @app.route('/sortedEventsByPerson/<p>/<cal_name>', methods=["GET"])
 def sorted_events_by_person(p, cal_name):
     sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
@@ -143,20 +121,6 @@ def add_participant(n, p, cal_name):
         return jsonify(calendars[value(cal_name)])
     else:
         return jsonify("No such event in {} ...".format(value(cal_name)))
-    
-@app.route('/exportCSV/<path>/<cal_name>', methods = ["GET", "POST"])
-def export_csv(path, cal_name):
-    entries = {}
-    with codecs.open(value(path), 'r', 'utf-8-sig') as file:
-        csv_reader = csv.DictReader(file)
-
-        for row in csv_reader:
-            if 'Name' in row and 'Timestamp' in row and 'Duration' in row and 'Participants' in row:
-                entries[row['Name']] = (row['Timestamp'], int(row['Duration']), row['Participants'])
-    
-    calendars[value(cal_name)] = entries
-    
-    return jsonify(calendars[value(cal_name)])
 
 @app.route('/viewCalendar/nextEvent/<cal_name>', methods=["GET"])
 def next_event(cal_name):
@@ -172,6 +136,20 @@ def next_event(cal_name):
     next_event = min(upcoming_events, key = lambda x : datetime.strptime(x[1], "%m/%d/%Y"))
     formatted_event = {"Name" : next_event[0], "Timestamp" : next_event[1], "Duration" : next_event[2], "Participants" : next_event[3]}
     return jsonify(formatted_event)
+    
+@app.route('/exportCSV/<path>/<cal_name>', methods = ["GET", "POST"])
+def export_csv(path, cal_name):
+    entries = {}
+    with codecs.open(value(path), 'r', 'utf-8-sig') as file:
+        csv_reader = csv.DictReader(file)
+
+        for row in csv_reader:
+            if 'Name' in row and 'Timestamp' in row and 'Duration' in row and 'Participants' in row:
+                entries[row['Name']] = (row['Timestamp'], int(row['Duration']), row['Participants'])
+    
+    calendars[value(cal_name)] = entries
+    
+    return jsonify(calendars[value(cal_name)])
 
 
 if __name__ == "__main__":
