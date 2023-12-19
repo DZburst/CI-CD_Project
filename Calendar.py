@@ -1,4 +1,5 @@
 import codecs
+from os import abort
 import sys
 from urllib.parse import quote, unquote
 from flask import Flask, jsonify, request, url_for
@@ -47,22 +48,26 @@ def main_menu():
 
 
 
-    # E2
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('all_events'), 'all_events')
-    
-    #E3
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('events_by_person', person='John'), 'events_by_person')
-    
-    #E5
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('next_event'), 'next_event')
-
+    #E1
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar', cal_name = quote('Default%20Calendar')), 'calendar')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events', cal_name = quote('Default%20Calendar')), 'sorted_events')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone', cal_name = quote('Default%20Calendar')), 'sorted_events_by_person')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone', cal_name = quote('Default%20Calendar')), 'add_participant')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('export_csv', path = quote('Ressources%2FCI_CD_Project.csv'), cal_name = quote('Default%20CSV%20Calendar')), 'export_csv')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone', cal_name = quote('Default%20Calendar')), 'add_event')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201'), cal_name = quote('Default%20Calendar')), 'remove_event')
+
+
+    #E2
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events', cal_name = quote('Default%20Calendar')), 'sorted_events')
+    
+    #E3
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'John', cal_name = quote('Default%20Calendar')), 'sorted_events_by_person')
+
+    #E4
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone', cal_name = quote('Default%20Calendar')), 'add_participant')
+
+    #E5
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('next_event', cal_name = quote('Default%20Calendar')), 'next_event')
+
+    #E6
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('export_csv', path = quote('Ressources%2FCI_CD_Project.csv'), cal_name = quote('Default%20CSV%20Calendar')), 'export_csv')
 
     return text
 
@@ -124,6 +129,21 @@ def export_csv(path, cal_name):
     
     return jsonify(calendars[value(cal_name)])
 
+@app.route('/viewCalendar/nextEvent/<cal_name>', methods=["GET"])
+def next_event(cal_name):
+    now = datetime.now().date()
+    upcoming_events = []
+    for name, (timestamp, time, participants) in calendars[value(cal_name)].items():
+        if datetime.strptime(timestamp, "%m/%d/%Y").date() >= now:
+            upcoming_events.append((name, timestamp, time, participants))
+    
+    if not upcoming_events:
+        abort(404, description = "No upcoming event in {}.".format(value(cal_name)))
+
+    next_event = min(upcoming_events, key = lambda x : datetime.strptime(x[1], "%m/%d/%Y"))
+    formatted_event = {"Name" : next_event[0], "Timestamp" : next_event[1], "Duration" : next_event[2], "Participants" : next_event[3]}
+    return jsonify(formatted_event)
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -135,40 +155,6 @@ if __name__ == "__main__":
             exit(1)
 
     app.run(debug = True)
-    
-
-@app.route('/viewCalendar/allEvents', methods=["GET"])
-def all_events():
-    sorted_events = sorted(cal.items(), key=lambda x: datetime.strptime(x[1][0], "%d/%m/%Y"))
-    # Triez les événements par date en utilisant la bibliothèque datetime
-    
-    formatted_events = [{"name": event[0], "timestamp": event[1][0], "time": event[1][1], "participants": event[1][2]} for event in sorted_events]
-    # Formatage des événements pour une sortie JSON
-    
-    return jsonify(formatted_events)
-
-@app.route('/viewCalendar/eventsByPerson/<person>', methods=["GET"])
-def events_by_person(person):
-    person_events = [(name, timestamp, time, participants) for name, (timestamp, time, participants) in cal.items() if person in participants]
-
-    sorted_events = sorted(person_events, key=lambda x: datetime.strptime(x[1], "%d/%m/%Y"))
-    formatted_events = [{"name": event[0], "timestamp": event[1], "time": event[2], "participants": event[3]} for event in sorted_events]
-
-    return jsonify(formatted_events)
-
-
-@app.route('/viewCalendar/nextEvent', methods=["GET"])
-def next_event():
-    now = datetime.now()
-    upcoming_events = [(name, timestamp, time, participants) for name, (timestamp, time, participants) in cal.items() if datetime.strptime(timestamp, "%d/%m/%Y") > now]
-
-    if not upcoming_events:
-        abort(404, description="Aucun événement à venir.")
-
-    next_event = min(upcoming_events, key=lambda x: datetime.strptime(x[1], "%d/%m/%Y"))
-    
-    formatted_event = {"name": next_event[0], "timestamp": next_event[1], "time": next_event[2], "participants": next_event[3]}
-    return jsonify(formatted_event)
 
 
 
