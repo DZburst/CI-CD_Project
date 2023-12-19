@@ -1,10 +1,8 @@
 import codecs
-from os import abort
 import sys
 from urllib.parse import quote, unquote
-from flask import Flask, jsonify, request, url_for
+from flask import Flask, abort, jsonify, request, url_for
 from markupsafe import escape
-from datetime import datetime
 from datetime import datetime
 import json
 import csv
@@ -29,13 +27,7 @@ class Event:
 test_event = Event("Holidays", "12/23/2023", 1382400, ["Everyone"])
 
 calendars = {}
-
-calendars = {}
 cal = {test_event.name : (test_event.timestamp, test_event.duration, test_event.participants)}
-calendars["Default Calendar"] = cal
-
-def value(x):
-    return unquote(unquote(x))
 calendars["Default Calendar"] = cal
 
 def value(x):
@@ -53,13 +45,10 @@ def main_menu():
     # Otherwise, we should create a list and get all the endpoints, access their properties with their rules,
     # and then do the necessary operations.
 
-
-
     #E1
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar', cal_name = quote('Default%20Calendar')), 'calendar')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone', cal_name = quote('Default%20Calendar')), 'add_event')
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201'), cal_name = quote('Default%20Calendar')), 'remove_event')
-
 
     #E2
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events', cal_name = quote('Default%20Calendar')), 'sorted_events')
@@ -129,9 +118,6 @@ def next_event(cal_name):
     for name, (timestamp, time, participants) in calendars[value(cal_name)].items():
         if datetime.strptime(timestamp, "%m/%d/%Y").date() >= now:
             upcoming_events.append((name, timestamp, time, participants))
-    
-    if not upcoming_events:
-        abort(404, description = "No upcoming event in {}.".format(value(cal_name)))
 
     next_event = min(upcoming_events, key = lambda x : datetime.strptime(x[1], "%m/%d/%Y"))
     formatted_event = {"Name" : next_event[0], "Timestamp" : next_event[1], "Duration" : next_event[2], "Participants" : next_event[3]}
