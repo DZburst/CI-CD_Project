@@ -5,6 +5,7 @@ from urllib.parse import quote, unquote
 from flask import Flask, jsonify, request, url_for
 from markupsafe import escape
 from datetime import datetime
+from datetime import datetime
 import json
 import csv
 
@@ -28,7 +29,13 @@ class Event:
 test_event = Event("Holidays", "12/23/2023", 1382400, ["Everyone"])
 
 calendars = {}
+
+calendars = {}
 cal = {test_event.name : (test_event.timestamp, test_event.duration, test_event.participants)}
+calendars["Default Calendar"] = cal
+
+def value(x):
+    return unquote(unquote(x))
 calendars["Default Calendar"] = cal
 
 def value(x):
@@ -58,7 +65,7 @@ def main_menu():
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events', cal_name = quote('Default%20Calendar')), 'sorted_events')
     
     #E3
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'John', cal_name = quote('Default%20Calendar')), 'sorted_events_by_person')
+    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone', cal_name = quote('Default%20Calendar')), 'sorted_events_by_person')
 
     #E4
     text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone', cal_name = quote('Default%20Calendar')), 'add_participant')
@@ -74,7 +81,15 @@ def main_menu():
 @app.route('/viewCalendar/<cal_name>', methods = ["GET"])
 def calendar(cal_name):
     return jsonify(calendars[value(cal_name)])
+@app.route('/viewCalendar/<cal_name>', methods = ["GET"])
+def calendar(cal_name):
+    return jsonify(calendars[value(cal_name)])
 
+@app.route('/addEvent/<n>/<T1>/<t>/<p>/<cal_name>', methods = ["GET", "POST"])
+def add_event(n, T1, t, p, cal_name):
+    new_event = Event(value(n), value(T1), int(value(t)), [value(p)])
+    calendars[value(cal_name)][new_event.name] = (new_event.timestamp, new_event.duration, new_event.participants)
+    return jsonify(calendars[value(cal_name)])
 @app.route('/addEvent/<n>/<T1>/<t>/<p>/<cal_name>', methods = ["GET", "POST"])
 def add_event(n, T1, t, p, cal_name):
     new_event = Event(value(n), value(T1), int(value(t)), [value(p)])
@@ -86,16 +101,30 @@ def remove_event(n, cal_name):
     if value(n) in calendars[value(cal_name)]:
         calendars[value(cal_name)].pop(value(n))
     return jsonify(calendars[value(cal_name)])
+@app.route('/removeEvent/<n>/<cal_name>', methods = ["GET", "DELETE"])
+def remove_event(n, cal_name):
+    if value(n) in calendars[value(cal_name)]:
+        calendars[value(cal_name)].pop(value(n))
+    return jsonify(calendars[value(cal_name)])
     
+@app.route('/sortEvents/<cal_name>', methods=["GET", "POST"])
+def sorted_events(cal_name):
+    sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
+    calendars[value(cal_name)].clear()
 @app.route('/sortEvents/<cal_name>', methods=["GET", "POST"])
 def sorted_events(cal_name):
     sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
     calendars[value(cal_name)].clear()
     for name, (timestamp, duration, participants) in sorted_cal:
         calendars[value(cal_name)][name] = (str(timestamp), duration, participants)
+        calendars[value(cal_name)][name] = (str(timestamp), duration, participants)
 
     return json.dumps(calendars[value(cal_name)], sort_keys = False)
+    return json.dumps(calendars[value(cal_name)], sort_keys = False)
 
+@app.route('/sortedEventsByPerson/<p>/<cal_name>', methods=["GET"])
+def sorted_events_by_person(p, cal_name):
+    sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
 @app.route('/sortedEventsByPerson/<p>/<cal_name>', methods=["GET"])
 def sorted_events_by_person(p, cal_name):
     sorted_cal = sorted(calendars[value(cal_name)].items(), key = lambda entry : datetime.strptime(entry[1][0], "%m/%d/%Y"))
@@ -155,6 +184,3 @@ if __name__ == "__main__":
             exit(1)
 
     app.run(debug = True)
-
-
-
