@@ -1,0 +1,18 @@
+name: Docker Semver Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build and push the Docker image
+      run: |
+        docker_tag = $(echo "${GITHUB_REF}" | cut -d "/" -f 3)
+        docker build . --file Dockerfile --tag my-image-name:${docker_tag}
+        docker push --my-image-name:${docker_tag}
