@@ -31,7 +31,6 @@ jobs:
         if: ${{ env.TAGGED_VERSION }}
         run: |
           docker build -t dzburst/ci-cd_project:${TAGGED_VERSION} .
-          docker images
           docker push dzburst/ci-cd_project:${TAGGED_VERSION}
 
       - uses: actions/checkout@v3
