@@ -32,3 +32,31 @@ jobs:
         run: |
           docker build -t dzburst/ci-cd_project:${TAGGED_VERSION} .
           docker push dzburst/ci-cd_project:${TAGGED_VERSION}
+
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: 'Set up Cloud Auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: ${{ secrets.GCLOUD_KEY }}
+    
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          project_id: esirem
+
+      - name: Configure Docker using GCLOUD
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3.3.1
+        with:
+          # Emplacement du Dockerfile
+          file: CI-CD_Project/Dockerfile
+          tags: europe-west1-docker.pkg.dev/esirem/esirem/4a_ilc/hadji_mouazer/ci-cd_project:${{ github.ref_name }}
+
+          # Emplacement des fichiers 
+          context: CI-CD_Project/.github/workflows
+          push: true
