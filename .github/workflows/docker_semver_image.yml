@@ -58,5 +58,5 @@ jobs:
           tags: europe-west1-docker.pkg.dev/esirem/esirem/4a_ilc/hadji_mouazer/ci-cd_project:${{ github.ref_name }}
 
           # Emplacement des fichiers 
-          context: CI-CD_Project/Calendar.py
+          context: .
           push: true
