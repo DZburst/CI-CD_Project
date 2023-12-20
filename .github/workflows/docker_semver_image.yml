@@ -15,4 +15,4 @@ jobs:
       run: |
         DOCKER_TAG=$(echo "${GITHUB_REF}" | cut -d "/" -f 3)
         docker build . --file Dockerfile --tag my-image-name:${DOCKER_TAG}
-        docker push --my-image-name:${DOCKER_TAG}
+        docker push my-image-name:${DOCKER_TAG}
