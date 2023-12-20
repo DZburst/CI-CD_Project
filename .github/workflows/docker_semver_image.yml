@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v3.3.1
         with:
           # Emplacement du Dockerfile
-          file: CI-CD_Project/Dockerfile
+          file: Dockerfile
           tags: europe-west1-docker.pkg.dev/esirem/esirem/4a_ilc/hadji_mouazer/ci-cd_project:${{ github.ref_name }}
 
           # Emplacement des fichiers 
