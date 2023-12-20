@@ -13,24 +13,29 @@ paths:
       summary: Root of the arborescence.
       description: All the endpoints are available from there, with examples for each of them.
       responses:
-        '200':    # status code
+        '200':
           description: Successful request
         '404':
           description: Not found
 
-
-  /viewCalendar:
+  /viewCalendar/{cal_name}:
     get:
       summary: View Calendar
       description: Access all the events in the calendar.
+      parameters:
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the calendar
+          schema:
+            type: string
       responses:
         '200':
           description: Successful response
         '404':
           description: Not found
 
-
-  /addEvent/{n}/{T1}/{t}/{p}:
+  /addEvent/{n}/{T1}/{t}/{p}/{cal_name}:
     post:
       summary: Add Event
       description: Add a new event to the calendar.
@@ -60,14 +65,19 @@ paths:
           description: Participants of the event
           schema:
             type: string
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the calendar
+          schema:
+            type: string
       responses:
         '200':
           description: Successful response
         '404':
           description: Not found
 
-
-  /removeEvent/{n}:
+  /removeEvent/{n}/{cal_name}:
     delete:
       summary: Remove Event
       description: Remove an event from the calendar based on its name.
@@ -78,25 +88,36 @@ paths:
           description: Name of the event
           schema:
             type: string
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the calendar
+          schema:
+            type: string
       responses:
         '200':
           description: Successful response
         '404':
           description: Not found
 
-
-  /sortEvents:
+  /sortEvents/{cal_name}:
     get:
       summary: Sort Events
       description: Sort the events in the calendar in chronological order, based on their timestamp.
+      parameters:
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the calendar
+          schema:
+            type: string
       responses:
         '200':
           description: Successful response
         '404':
           description: Not found
 
-
-  /sortedEventsByPerson/{p}:
+  /sortedEventsByPerson/{p}/{cal_name}:
     get:
       summary: Sorted Events By Person
       description: Sort the events in the calendar in chronological order, based on their timestamp, for a given participant.
@@ -107,14 +128,19 @@ paths:
           description: Participant name
           schema:
             type: string
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the calendar
+          schema:
+            type: string
       responses:
         '200':
           description: Successful response
         '404':
           description: Not found
 
-
-  /addParticipant/{n}/{p}:
+  /addParticipant/{n}/{p}/{cal_name}:
     post:
       summary: Add Participant
       description: Add a participant to a given event.
@@ -131,12 +157,34 @@ paths:
           description: Name of the participant
           schema:
             type: string
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the calendar
+          schema:
+            type: string
       responses:
         '200':
           description: Successful response
         '404':
           description: Not found
 
+  /viewCalendar/nextEvent/{cal_name}:
+    get:
+      summary: Next Event
+      description: Get the next upcoming event in the calendar.
+      parameters:
+        - name: cal_name
+          in: path
+          required: true
+          description: Name of the calendar
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not found
 
   /exportCSV/{path}/{cal_name}:
     post:
