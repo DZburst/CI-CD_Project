@@ -2,6 +2,16 @@
 
 *Realized by : HADJI Rayan, MOUAZER Rayane - TP1 ILC 4A*
 
+Our GitHubs : 
+
+<a href="url"><img src="https://avatars.githubusercontent.com/u/115188188?v=4" align="left" height="50" width="50" ></a><br> [HADJI Rayan](https://github.com/DZburst)
+
+<a href="url"><img src="https://avatars.githubusercontent.com/u/123754563?s=400&u=722c3e59b954407c8b423b7ebb8b3e3599aa0980&v=4" align="left" height="50" width="50" ></a><br> [MOUAZER Rayane](https://github.com/rayanemouazer) 
+
+[![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org)
+
+---
+
 ## **Part 1 : Routes to implement**
 
 * <u>**E1: Add an event to the calendar**</u>
@@ -31,21 +41,25 @@
 Create 3 GitHub Actions :  
 * <u>**One triggered by any change to build the application.**</u>
 
+  We didn't have any problem for this one, since it was already part of the actions available in the Github Action Library.
 
 * <u>**One triggered manually to use the Dockerfile file, in order to generate an image.**</u>
 
+  We only had to modify 1 or 2 things in the Docker template, available in the library.
 
 * <u>**One triggered for each semver tag to use the Dockerfile file, in order to generate and push the image of the API, its tag being the specified semver version.**</u>
 
+  This is actually the part on which we struggled the most, alongside the CD part. Although we tried several different codes, we only kept on getting errors at first. After several attempts, we were finally able to run the workflow without any error, but there is still a problem which we haven't been able to solve : it doesn't actually push the image to Docker Hub. We also tried to do it manually, from the codespace's terminal with the command `docker push dzburst/ci-cd_project:v1.0.0` ;  but then, it says that no image exists in this repository. So, we guess the issue may come from the way we get the tag, in the *Build and Push Docker Image* workflow, but we don't know how to actually solve it.
 
 ## **Part 3 : API & CSV file Documentation**
 
 * **Acquiring *.csv* data**
 
   Regarding this part of the API, since we had some freedom for the representation and the way we handle the different elements, we've chosen to directly ask for the user to type in the path of the csv file. We're totally aware that this is definitely not the most secure way to do it, but for now we prefer to keep it that way. We've chosen to focus more on the other demands, notably regarding Swagger, Docker and GitHub Actions, for we believe it is part of the fundamentals of this module. Nonetheless, it is for sure a point which would need to be patched in the potential future versions of the API.  
-  So basically, in order to load data from a *.csv* file :  
+  So basically, in order to load data from a *.csv* file :
+  - Put your *.csv* file in the *Ressources* directory
   - Go to the main menu's URL
-  - Add the path of your file, making sure it is within the scope of the API ( don't forget to escape the necessary characters )
+  - Add the path of your file ( don't forget to escape the necessary characters )
   - Add the name of the calendar you want to generate with your *.csv* file.
 
   The URL should look like this : ***main_menu_url/path_of_csv_file/name_of_calendar***
@@ -54,6 +68,10 @@ Create 3 GitHub Actions :
   ***Name***, ***Timestamp***, ***Duration***, ***Participants***  
   For now, our code is case-sensitive, so please beware when renaming the columns.
 
+## **Workflow Badges**
+[![Build Status](https://github.com/DZburst/CI-CD_Project/workflows/Build%20and%20Push%20Docker%20Image/badge.svg)](https://github.com/DZburst/CI-CD_Project/actions)
+[![Build Status](https://github.com/DZburst/CI-CD_Project/workflows/Docker%20Image%20CI/badge.svg)](https://github.com/DZburst/CI-CD_Project/actions)
+[![Build Status](https://github.com/DZburst/CI-CD_Project/workflows/Python%20application/badge.svg)](https://github.com/DZburst/CI-CD_Project/actions)
 
 # **Appendix**
 
