@@ -13,6 +13,6 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build and push the Docker image
       run: |
-        docker_tag = $(echo "${GITHUB_REF}" | cut -d "/" -f 3)
-        docker build . --file Dockerfile --tag my-image-name:${docker_tag}
-        docker push --my-image-name:${docker_tag}
+        DOCKER_TAG = $(echo "${GITHUB_REF}" | cut -d "/" -f 3)
+        docker build . --file Dockerfile --tag my-image-name:${DOCKER_TAG}
+        docker push --my-image-name:${DOCKER_TAG}
