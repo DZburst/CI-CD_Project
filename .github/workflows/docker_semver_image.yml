@@ -13,4 +13,5 @@ jobs:
       run: |
         DOCKER_TAG=$(echo "${GITHUB_REF}" | cut -d "/" -f 3)
         docker build . --file Dockerfile --tag my-image-name:${DOCKER_TAG}
+        echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
         docker push my-image-name:${DOCKER_TAG}
