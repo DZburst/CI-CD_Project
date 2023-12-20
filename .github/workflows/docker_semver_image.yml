@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*.*.*'
 
+env:
+  TAGGED_VERSION: ''
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -13,12 +16,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set tagged version
+        if: |
+          startsWith(github.event_name, 'push') && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAGGED_VERSION=$(echo "${{ github.ref }}" | sed -e 's|^refs/tags/v||')
+
       - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Build and push Docker image
-        env:
-          TAGGED_VERSION: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.event.head_commit ? github.event.head_commit.message | regex_replace('v', '') : '' }}
+        if: ${{ env.TAGGED_VERSION }}
         run: |
           docker build -t dzburst/ci-cd_project:${TAGGED_VERSION} .
           docker push dzburst/ci-cd_project:${TAGGED_VERSION}
