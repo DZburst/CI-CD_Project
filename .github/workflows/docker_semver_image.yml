@@ -25,6 +25,6 @@ jobs:
           TAG=${TAG#refs/tags/}
 
           docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ DOCKER_USERNAME }}/your-image-name:$TAG .
+          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ DOCKER_USERNAME }}/Dockerfile:$TAG .
           echo "${DOCKER_TOKEN}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
-          docker push ${{ DOCKER_USERNAME }}/your-image-name:$TAG
+          docker push ${{ DOCKER_USERNAME }}/Dockerfile:$TAG
